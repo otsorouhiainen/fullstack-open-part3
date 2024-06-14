@@ -1,6 +1,21 @@
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
+
+morgan.token('body', (request, response) => JSON.stringify(request.body))
+
+const modifiedTinyConfiguration = ':method :url :status :res[content - length] - :response-time ms :body'
+
 app.use(express.json())
+app.use(morgan('tiny'))
+
+app.use((req, res, next) =>{
+  if(req.method === 'POST'){
+    morgan(modifiedTinyConfiguration)(req,res,next)
+  }else{
+    next()
+  }
+})
 
 let persons = [
   {
@@ -89,6 +104,12 @@ app.post('/api/persons', (request, response) =>{
   persons = persons.concat(person)
   response.json(person)
 })
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
 
 const PORT = 3001
 app.listen(PORT, () => {
