@@ -16,7 +16,7 @@ const modifiedTinyConfiguration = ':method :url :status :res[content - length] -
 
 app.use(morgan('tiny'))
 
-app.use((req, res, next) =>{
+app.use((req, res, next) => {
   if(req.method === 'POST'){
     morgan(modifiedTinyConfiguration)(req,res,next)
   }else{
@@ -31,7 +31,7 @@ app.get('/', (request, response) => {
 app.get('/info', (request, response) => {
   const date = new Date()
   Person.countDocuments({})
-    .then(count =>{
+    .then(count => {
       response.send(`<div>Phonebook has info for ${count} people</div>${date}`)
     })
     .catch(error => next(error))
@@ -39,7 +39,7 @@ app.get('/info', (request, response) => {
 
 app.get('/api/persons', (request, response) => {
   Person.find({})
-    .then(persons =>{
+    .then(persons => {
       response.json(persons)
     })
     .catch(error => next(error))
@@ -47,7 +47,7 @@ app.get('/api/persons', (request, response) => {
 
 app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id)
-    .then(person =>{
+    .then(person => {
       if(person) {
         response.json(person)
       } else {
@@ -57,35 +57,35 @@ app.get('/api/persons/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-app.delete('/api/persons/:id', (request, response, next) =>{
+app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
-    .then(result =>{
+    .then(result => {
       response.status(204).end()
     })
     .catch(error => next(error))
 })
 
-app.post('/api/persons', (request, response, next) =>{
+app.post('/api/persons', (request, response, next) => {
   const body = request.body
 
   if(!body.name){
-    return response.status(400).json({error: 'name missing'})
+    return response.status(400).json({ error: 'name missing' })
   }
   if(!body.number){
-    return response.status(400).json({error: 'number missing'})
+    return response.status(400).json({ error: 'number missing' })
   }
   const person = new Person({
     name: body.name,
     number: body.number
   })
   person.save()
-  .then(savedPerson =>{
-    response.json(savedPerson)
-  })
-  .catch(error => next(error))
+    .then(savedPerson => {
+      response.json(savedPerson)
+    })
+    .catch(error => next(error))
 })
 
-app.put('/api/persons/:id', (request, response, next) =>{
+app.put('/api/persons/:id', (request, response, next) => {
   const body = request.body
 
   const person = {
@@ -93,8 +93,8 @@ app.put('/api/persons/:id', (request, response, next) =>{
     number: body.number
   }
 
-  Person.findByIdAndUpdate(request.params.id, person, {new: true})
-    .then(updatedPerson =>{
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then(updatedPerson => {
       response.json(updatedPerson)
     })
     .catch(error => next(error))
@@ -110,10 +110,10 @@ const errorHandler = (error, request, response, next) => {
   console.error(error.message)
 
   if (error.name === 'CastError'){
-    return response.status(400).send({error: 'malformatted id'})
+    return response.status(400).send({ error: 'malformatted id' })
   }
   if (error.name === 'ValidationError'){
-    return response.status(400).send({error: error.message})
+    return response.status(400).send({ error: error.message })
   }
   next(error)
 }
